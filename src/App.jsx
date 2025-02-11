@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import Dashboard from "./components/Dashboard"
 import SignIn from "./components/SignIn"
 import UpdatePassword from "./components/UpdatePassword"
-import axios from "axios"
+import api from "./utils/api"
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -29,8 +29,8 @@ export default function App() {
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem("adminToken")
-      await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/logout`,
+      await api.post(
+        "/logout",
         {},
         {
           headers: {

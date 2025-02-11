@@ -7,32 +7,43 @@ export default function DailyUsers() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [weeklyData, setWeeklyData] = useState([]);
 
-  useEffect(()=>{
+  useEffect(() => {
     const fetchUsers = async () => {
-      try{
+      try {
         const response = await api.get(`/getTotalusers?timeframe=${activeTab}`);
-        const data = await response.data;
-        setTotalUsers(data.totalUsers);
+        const data = response.data;
+  
+        if (activeTab === "week") {
+          const daysOfWeek = [ "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-        if(activeTab == "week"){
-          const weeklystatus = [
-            { name: "Mon", users: Math.floor(data.totalUsers / 7) },
-            { name: "Tue", users: Math.floor(data.totalUsers / 7) },
-            { name: "Wed", users: Math.floor(data.totalUsers / 7) },
-            { name: "Thu", users: Math.floor(data.totalUsers / 7) },
-            { name: "Fri", users: Math.floor(data.totalUsers / 7) },
-            { name: "Sat", users: Math.floor(data.totalUsers / 7) },
-            { name: "Sun", users: Math.floor(data.totalUsers / 7) },
-          ]
-          setWeeklyData(weeklystatus);
+          // Convert backend response to proper format for Recharts
+          const weeklyDataFormatted = data.map((dayObj) => {
+            const dayName = Object.keys(dayObj)[0]; // Get the day name (e.g., "Monday")
+            return {
+              name: dayName.substring(0, 3), // Shorten to "Mon", "Tue", etc.
+              users: dayObj[dayName].totalUsers,
+            };
+          });
+
+           // Ensure all days are present, even if they have 0 users
+        let completeData = daysOfWeek.map((day) => {
+          let existing = weeklyDataFormatted.find((d) => d.name === day);
+          return existing || { name: day, users: 0 };
+        });
+  
+          setWeeklyData(completeData);
+          setTotalUsers(completeData.reduce((sum, d) => sum + d.users, 0));
+        } else {
+          setTotalUsers(data.totalUsers);
         }
-      }catch(err){
-        console.log('Error fetching total users:', err);
+      } catch (err) {
+        console.error("Error fetching total users:", err);
       }
-    }
+    };
+  
     fetchUsers();
-
-  },[activeTab])
+  }, [activeTab]);
+  
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">

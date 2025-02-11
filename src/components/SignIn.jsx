@@ -1,5 +1,5 @@
 import { useState } from "react"
-import axios from "axios"
+import api from '../utils/api'
 
 export default function SignIn({ onLogin }) {
   const [email, setEmail] = useState("")
@@ -25,7 +25,7 @@ export default function SignIn({ onLogin }) {
     }
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/adminLogin`, {
+      const response = await api.post("/adminLogin", {
         email: email,
         password: password,
       })
