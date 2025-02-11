@@ -9,20 +9,20 @@ export default function SignIn({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!email || !password) {
-      setError("Please fill in all fields")
-      return
-    }
+    // if (!email || !password) {
+    //   setError("Please fill in all fields")
+    //   return
+    // }
 
-    if (!email.includes("@")) {
-      setError("Please enter a valid email")
-      return
-    }
+    // if (!email.includes("@")) {
+    //   setError("Please enter a valid email")
+    //   return
+    // }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters")
-      return
-    }
+    // if (password.length < 6) {
+    //   setError("Password must be at least 6 characters")
+    //   return
+    // }
 
     try {
       const response = await api.post("/adminLogin", {
