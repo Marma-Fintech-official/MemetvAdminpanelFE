@@ -46,7 +46,7 @@ export default function TotalPoints() {
           />
         </svg>
       </div>
-      <div className="text-3xl font-bold cursor-pointer" onClick={() => setIsDialogOpen(true)}>
+      <div className="text-3xl font-bold cursor-pointer" onClick={() => setIsDialogOpen(true)} title="Click to view points distribution">
       {TOTAL_POINTS.toLocaleString()}
       </div>
       <p className="text-sm text-gray-500">Total accumulated points</p>

@@ -1,24 +1,9 @@
-import { useState, useEffect } from "react"
-import Dashboard from "./components/Dashboard"
+import { useState } from "react"
 import SignIn from "./components/SignIn"
-import UpdatePassword from "./components/UpdatePassword"
-import api from "./utils/api"
-
+import Dashboard from "./components/Dashboard"
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [showUpdatePassword, setShowUpdatePassword] = useState(false)
   const [userEmail, setUserEmail] = useState("")
-
-  useEffect(() => {
-    const token = localStorage.getItem("adminToken")
-    const email = localStorage.getItem("userEmail") //for displying user email on main page 
-
-    if (token) {
-      setIsAuthenticated(true)
-      // You might want to validate the token here
-      setUserEmail(email)
-    }
-  }, [])
 
   const handleLogin = (email) => {
     setIsAuthenticated(true)
@@ -26,170 +11,137 @@ export default function App() {
     localStorage.setItem("userEmail", email)
   }
 
-  const handleLogout = async () => {
-    try {
-      const token = localStorage.getItem("adminToken")
-      await api.post(
-        "/logout",
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      )
-      localStorage.removeItem("adminToken")
-      localStorage.removeItem("userEmail")
-      setIsAuthenticated(false)
-      setUserEmail("")
-      setShowUpdatePassword(false)
-    } catch (error) {
-      console.error("Logout error:", error)
-      // Handle logout error (e.g., show a message to the user)
-    }
-  }
-
   if (!isAuthenticated) {
     return <SignIn onLogin={handleLogin} />
   }
 
-  if (showUpdatePassword) {
-    return (
-      <UpdatePassword
-        email={userEmail}
-        onPasswordUpdated={() => setShowUpdatePassword(false)}
-        onCancel={() => setShowUpdatePassword(false)}
-      />
-    )
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <span className="text-xl font-semibold">TheMemetv Tracker</span>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-500">{userEmail}</span>
-              <button onClick={() => setShowUpdatePassword(true)} 
-              // className= "px-4 py-2 bg-blue-100 text-blue-700 hover:text-blue-300">
-              className="px-4 py-2 bg-blue-500 text-white border border-blue-500 rounded-lg hover:bg-blue-300">
-              Update Password
-              </button>
-              <button onClick={handleLogout} 
-              // className="px-4 py-2 bg-blue-100 text-red-600 hover:text-red-300">
-              className="px-4 py-2 bg-blue-500 text-white border border-blue-500 rounded-lg hover:bg-blue-300">
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-      <Dashboard />
-    </div>
-  )
+  return <Dashboard userEmail={userEmail} setIsAuthenticated={setIsAuthenticated} />
 }
 
+// import { useState } from "react";
+// import api from "../utils/api"; // Import API instance
 
+// export default function UpdatePassword({ email, onPasswordUpdated, onCancel }) {
+//   const [oldPassword, setOldPassword] = useState("");
+//   const [newPassword, setNewPassword] = useState("");
+//   const [confirmNewPassword, setConfirmNewPassword] = useState("");
+//   const [error, setError] = useState("");
+//   const [successMessage, setSuccessMessage] = useState("");
 
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
 
+//     if (!oldPassword || !newPassword || !confirmNewPassword) {
+//       setError("Please fill in all fields");
+//       return;
+//     }
 
-// import { useState } from "react"
-// import Dashboard from "./components/Dashboard"
-// import SignIn from "./components/SignIn"
-// import UpdatePassword from "./components/updatePassword"
-// import axios from 'axios';
+//     if (newPassword.length < 6) {
+//       setError("New password must be at least 6 characters");
+//       return;
+//     }
 
-// export default function App() {
-//   const [isAuthenticated, setIsAuthenticated] = useState(false)
-//   const [showUpdatePassword, setShowUpdatePassword] = useState(false)
-//   const [userEmail, setUserEmail] = useState("")
+//     if (newPassword !== confirmNewPassword) {
+//       setError("New passwords do not match");
+//       return;
+//     }
 
-//   const handleLogin = (email) => {
-//     setIsAuthenticated(true)
-//     setUserEmail(email)
-//   }
-
-//   // const handleLogout = () => {
-//   //   setIsAuthenticated(false)
-//   //   setUserEmail("")
-//   //   setShowUpdatePassword(false)
-//   // }
-//   const handleLogout = async () => {
 //     try {
-//       const token = localStorage.getItem("token"); // Get the token from localStorage
-//       if (!token) {
-//         console.log("No token found, already logged out.");
-//         setIsAuthenticated(false);
-//         setUserEmail("");
-//         setShowUpdatePassword(false);
-//         return;
-//       }
-  
-//       const response = await axios.post(
-//         'http://localhost:8888/logout',
-//         {},
-//         {
-//           headers: {
-//             'Authorization': `Bearer ${token}`, // Include the token in the Authorization header
-//           },
-//         }
-//       );
-  
-//       if (response.status === 200) {
-//         console.log(response.data.message); // "Logout successful"
-//         localStorage.removeItem("token"); // Remove token from localStorage
-//         setIsAuthenticated(false);
-//         setUserEmail("");
-//         setShowUpdatePassword(false);
-//       } else {
-//         console.log(response.data.message); // Handle error if any
-//       }
-//     } catch (error) {
-//       console.error("Error during logout:", error);
-//       setError(err.response?.data?.message || "Logout failed");
+//       const response = await api.post("/updatePassword", {
+//         email,
+//         oldPassword,
+//         newPassword,
+//         confirmNewPassword,
+//       });
 
+//       setSuccessMessage(response.data.message);
+//       setError("");
+//       setTimeout(() => {
+//         onPasswordUpdated(); // Close modal after success
+//       }, 2000);
+//     } catch (err) {
+//       setError(err.response?.data?.message || "Failed to update password");
+//       setSuccessMessage("");
 //     }
 //   };
-  
-
-//   if (!isAuthenticated) {
-//     return <SignIn onLogin={handleLogin} />
-//   }
-
-//   if (showUpdatePassword) {
-//     return (
-//       <UpdatePassword
-//         email={userEmail}
-//         onPasswordUpdated={() => setShowUpdatePassword(false)}
-//         onCancel={() => setShowUpdatePassword(false)}
-//       />
-//     )
-//   }
-
-//   const baseURL = import.meta.env.VITE_BASE_URL;
-//   console.log(baseURL); // http://localhost:8888
 
 //   return (
-//     <div className="min-h-screen bg-gray-100">
-//       <nav className="bg-white shadow-sm">
-//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//           <div className="flex justify-between items-center h-16">
-//             <span className="text-xl font-semibold">TheMemetv Tracker</span>
-//             <div className="flex items-center space-x-4">
-//               <span className="text-gray-500">{userEmail}</span>
-//               <button onClick={() => setShowUpdatePassword(true)} className="text-blue-500 hover:text-blue-600">
-//                 Update Password
-//               </button>
-//               <button onClick={handleLogout} className="text-red-500 hover:text-red-600">
-//                 Logout
-//               </button>
+//     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+//       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow">
+//         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Update Password</h2>
+//         <p className="mt-2 text-center text-sm text-gray-600">{email}</p>
+//         {error && <div className="text-red-500 text-sm text-center">{error}</div>}
+//         {successMessage && <div className="text-green-500 text-sm text-center">{successMessage}</div>}
+
+//         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+//           <div className="rounded-md shadow-sm space-y-4">
+//             <div>
+//               <label htmlFor="old-password" className="block text-sm font-medium text-gray-700">
+//                 Old Password
+//               </label>
+//               <input
+//                 id="old-password"
+//                 name="old-password"
+//                 type="password"
+//                 required
+//                 value={oldPassword}
+//                 onChange={(e) => setOldPassword(e.target.value)}
+//                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+//               />
+//             </div>
+//             <div>
+//               <label htmlFor="new-password" className="block text-sm font-medium text-gray-700">
+//                 New Password
+//               </label>
+//               <input
+//                 id="new-password"
+//                 name="new-password"
+//                 type="password"
+//                 required
+//                 value={newPassword}
+//                 onChange={(e) => setNewPassword(e.target.value)}
+//                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+//               />
+//             </div>
+//             <div>
+//               <label htmlFor="confirm-new-password" className="block text-sm font-medium text-gray-700">
+//                 Confirm New Password
+//               </label>
+//               <input
+//                 id="confirm-new-password"
+//                 name="confirm-new-password"
+//                 type="password"
+//                 required
+//                 value={confirmNewPassword}
+//                 onChange={(e) => setConfirmNewPassword(e.target.value)}
+//                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+//               />
 //             </div>
 //           </div>
-//         </div>
-//       </nav>
-//       <Dashboard />  
+
+//           <div className="flex space-x-4">
+//             <button
+//               type="submit"
+//               className="flex-1 py-2 px-4 text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+//             >
+//               Update Password
+//             </button>
+//             <button
+//               type="button"
+//               onClick={onCancel}
+//               className="flex-1 py-2 px-4 bg-gray-300 hover:bg-gray-400 rounded-md"
+//             >
+//               Cancel
+//             </button>
+//           </div>
+//         </form>
+//       </div>
 //     </div>
-//   )
+//   );
 // }
+
+
+
+
+
 
